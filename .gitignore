@@ -1,0 +1,12 @@
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+*.mp4
+*.jpg
+*.png
+urlsDone.json
+urlsTodo.json
+cache/
