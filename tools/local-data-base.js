@@ -1,7 +1,7 @@
 const fs = require('fs')
 
 function save(key, contentOrFunc) {
-  const contentFilePath = `dataBase/${key}.json`
+  const contentFilePath = `newVersion/dataBase/${key}.json`
   let contentString
   if (typeof contentOrFunc === 'function') {
     contentString = JSON.stringify(contentOrFunc(load(key)))
@@ -12,7 +12,7 @@ function save(key, contentOrFunc) {
 }
 
 function load(key) {
-  const contentFilePath = `dataBase/${key}.json`
+  const contentFilePath = `newVersion/dataBase/${key}.json`
   const fileBuffer = fs.readFileSync(contentFilePath, 'utf-8')
   const contentJson = JSON.parse(fileBuffer)
   return contentJson || []
