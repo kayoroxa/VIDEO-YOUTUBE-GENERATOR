@@ -10,3 +10,4 @@
 urlsDone.json
 urlsTodo.json
 cache/
+*.todo
