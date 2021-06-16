@@ -1,17 +1,27 @@
-async function downloadVideos({ getData, downloadFolder }) {
+const fetch = require('node-fetch')
+const fs = require('fs')
+
+async function downloadVideos({ pathRoot, getData, downloadFolder }) {
   console.log('[BOT DOWNLOAD] starting...')
   const data = await getData('postsTodo')
-  const videosUrl = data.map(post => post.videoUrl)
-  console.log(`[BOT DOWNLOAD] VideosUrl: ${JSON.stringify(videosUrl)}`)
 
-  for (let index in videosUrl) {
-    const videoUrl = videosUrl[index]
-    await downloadVideoToPath(downloadFolder, videoUrl)
+  for (let index in data) {
+    const videoUrl = data[index].videoUrl
+    const postID = data[index].postID
+    await downloadVideoToPath(
+      `${pathRoot}/${downloadFolder}/${postID}.mp4`,
+      videoUrl
+    )
   }
 
-  async function downloadVideoToPath(downloadFolder, linkForDownload) {
-    console.log(
-      `[BOT DOWNLOAD] Downloading video: ${linkForDownload} to ${downloadFolder}...`
+  async function downloadVideoToPath(path, linkForDownload) {
+    const response = await fetch(linkForDownload)
+    const buffer = await response.buffer()
+
+    fs.writeFile(path, buffer, () =>
+      console.log(
+        `[BOT DOWNLOAD] Downloaded video: ${linkForDownload} to ${downloadFolder}...`
+      )
     )
   }
 }
