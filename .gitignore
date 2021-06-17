@@ -7,6 +7,6 @@
 *.mp4
 *.jpg
 *.png
-urlsDone.json
-urlsTodo.json
 cache/
+*.todo
+**/dataBase
