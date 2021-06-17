@@ -1,9 +1,13 @@
+const sleep = require('../../tools/sleep')
+
 async function extractDataFromVideos({
   addData,
   page,
   maxPostGet,
   instaAccountUrl,
 }) {
+  await sleep(3, 6)
+
   const accountID = instaAccountUrl
     .replace('https://www.instagram.com/', '')
     .replace('/', '')
