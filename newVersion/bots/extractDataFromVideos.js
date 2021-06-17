@@ -1,9 +1,22 @@
-async function extractDataFromVideos({ addData, page, maxPostGet }) {
-  console.log(`[BOT EXTRACT_DATA] Opening instagram account in browser...`)
-  console.log(`[BOT EXTRACT_DATA] Page: ${page}`)
+async function extractDataFromVideos({
+  addData,
+  page,
+  maxPostGet,
+  instaAccountUrl,
+}) {
+  const accountID = instaAccountUrl
+    .replace('https://www.instagram.com/', '')
+    .replace('/', '')
 
-  await page.exposeFunction('getPostsID', getPostsID)
-  await page.exposeFunction('getLinkForDownload', getLinkForDownload)
+  console.log(`[BOT EXTRACT_DATA] Received: ${accountID}`)
+  try {
+    await page.exposeFunction('getPostsID', getPostsID)
+    await page.exposeFunction('getLinkForDownload', getLinkForDownload)
+  } catch (error) {
+    console.log(
+      `[BOT EXTRACT_DATA] Don't add exposeFunctions, cause ${error.message}`
+    )
+  }
 
   async function getPostsID(maxPostGet, elements) {
     console.log(`[BOT EXTRACT_DATA] Getting videos IDs...`)
@@ -32,9 +45,7 @@ async function extractDataFromVideos({ addData, page, maxPostGet }) {
       console.log(`[BOT EXTRACT_DATA] creating api url from: ${postID}...`)
       return urlResult
     }
-    console.log(
-      `[BOT EXTRACT_DATA] getting VIDEO_URL from api url: ${apiURL}...`
-    )
+
     const videoUrl = await page.evaluate(
       async ({ apiURL }) => {
         // eslint-disable-next-line no-undef
@@ -51,7 +62,7 @@ async function extractDataFromVideos({ addData, page, maxPostGet }) {
   }
 
   const dataFromVideos = await page.evaluate(
-    async ({ maxPostGet }) => {
+    async ({ maxPostGet, accountID }) => {
       const exports = []
       // eslint-disable-next-line no-undef
       const elements = [...document.querySelectorAll('article a')]
@@ -70,11 +81,11 @@ async function extractDataFromVideos({ addData, page, maxPostGet }) {
         const postID = postsID[index]
         const videoUrl = await getLinkForDownload(postID)
 
-        if (videoUrl) exports.push({ postID, videoUrl })
+        if (videoUrl) exports.push({ postID, videoUrl, accountID })
       }
       return exports
     },
-    { maxPostGet }
+    { maxPostGet, accountID }
   )
   console.log(`[BOT EXTRACT_DATA] ${JSON.stringify(dataFromVideos)}`)
   const data = await dataFromVideos

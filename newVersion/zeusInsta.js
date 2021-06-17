@@ -19,18 +19,22 @@ async function ZeusInsta(options) {
 
   async function startBrowser() {
     console.log('[BROWSER] Starting...')
-    const browser = await puppeteer.launch({
+    parameters.browser = await puppeteer.launch({
       userDataDir: './cache',
-      headless: false,
+      headless: parameters.headless || true,
+      ignoreDefaultArgs: ['--disable-extensions'],
     })
-    parameters.page = await browser.newPage()
+    parameters.page = await parameters.browser.newPage()
     await parameters.page.setUserAgent(
       'Mozilla/4.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'
     )
-    await parameters.page.goto('https://www.google.com.br/')
+    // await parameters.page.goto('https://www.google.com.br/')
   }
   async function closeBrowser() {
-    console.log('[BROWSER] Closing...')
+    if (parameters.startBrowser !== false) {
+      await parameters.browser.close()
+      console.log('[BROWSER] Closed.')
+    }
   }
 
   async function getData(path) {
@@ -39,7 +43,9 @@ async function ZeusInsta(options) {
 
   async function addData(path, postsData) {
     // {videoID, videoUrl}
-    console.log(`[zeus addData] Adding content: ${JSON.stringify(postsData)}`)
+    console.log(
+      `[zeus addData] Adding data base post: ${postsData.postId}, videoUrl: ${postsData.accountID}`
+    )
 
     return save(path, prev => {
       const prevPostID = prev.map(data => data.postID)
@@ -54,18 +60,29 @@ async function ZeusInsta(options) {
   }
 
   async function moveTodoToDone(subject) {
-    console.log(`[MOVE TODO TO DONE] ${JSON.stringify(subject)}`)
+    console.log(`[MOVE TODO TO DONE] ${subject.map(v => v.postID).join(' & ')}`)
     save('postsDone', prev => [...prev, ...subject])
     save('postsTodo', prev => prev.filter(valor => !subject.includes(valor)))
-    console.log('moveu to other banco de dados')
+  }
+  async function loopForInstaAccounts(callBack) {
+    for (let instaAccountUrl of parameters.instagrams) {
+      await parameters.page.goto(instaAccountUrl)
+      console.log(`[ZEUS Loop] Atual insta Account ${instaAccountUrl}`)
+      await callBack({
+        ...parameters,
+        instaAccountUrl: instaAccountUrl,
+      })
+    }
   }
 
-  await startBrowser()
+  if (parameters.startBrowser !== false) await startBrowser()
   return {
     startBrowser,
     closeBrowser,
-    downloadVideos: () => bot.downloadVideos(parameters),
-    extractDataFromVideos: () => bot.extractDataFromVideos(parameters),
+    downloadVideos: async () => await bot.downloadVideos(parameters),
+    extractDataFromVideos: async () => {
+      await loopForInstaAccounts(bot.extractDataFromVideos)
+    },
     joinVideos: () => bot.joinVideos(parameters),
     moveTodoToDone,
   }
