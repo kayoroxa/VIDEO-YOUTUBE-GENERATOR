@@ -4,9 +4,9 @@ function save(key, contentOrFunc) {
   const contentFilePath = `newVersion/dataBase/${key}.json`
   let contentString
   if (typeof contentOrFunc === 'function') {
-    contentString = JSON.stringify(contentOrFunc(load(key)))
+    contentString = JSON.stringify(contentOrFunc(load(key)), null, 2)
   } else {
-    contentString = JSON.stringify(contentOrFunc)
+    contentString = JSON.stringify(contentOrFunc, null, 2)
   }
   return fs.writeFileSync(contentFilePath, contentString)
 }

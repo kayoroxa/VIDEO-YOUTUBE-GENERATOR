@@ -1,10 +1,10 @@
 const ZeusInsta = require('./zeusInsta')
 
-const instagrams = [
-  'https://www.instagram.com/videos_engracados2k/',
-  'https://www.instagram.com/videospradarrisada/',
-  'https://www.instagram.com/memes24horasoficial/',
-  'https://www.instagram.com/rindo.ate.2091/',
+const instagramsIDs = [
+  'memes24horasoficial',
+  'videos_engracados2k',
+  'videospradarrisada',
+  'rindo.ate.2091',
 ]
 
 async function main() {
@@ -12,17 +12,20 @@ async function main() {
     downloadFolder: 'videos_baixados',
     readyVideosFolder: 'videos_prontos',
     dataBaseFolder: './dataBaseFolder',
-    maxPostGet: 1,
-    instagrams,
-    headless: true,
-    // startBrowser: false,
+    maxPostGet: 10,
+    instagramsIDs,
+    headless: false,
+    startBrowser: false,
   })
 
-  await zeus.extractDataFromVideos()
-  await zeus.downloadVideos()
-  await zeus.joinVideos()
+  // await zeus.getUrlDownload()
+  // await zeus.extractDataFromVideos()
+  // await zeus.downloadVideos()
 
-  await zeus.closeBrowser()
+  await zeus.formatDataBase()
+  // await zeus.joinVideos()
+
+  // await zeus.closeBrowser()
 }
 
 try {
